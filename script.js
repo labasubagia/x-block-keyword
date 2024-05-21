@@ -19,13 +19,24 @@ function hasAffiliateLink(element) {
   return false;
 }
 
-function removeAffiliate() {
-  const posts = document.querySelectorAll('[data-testid="cellInnerDiv"]')
-  for(let post of posts) {
-    if (hasAffiliateLink(post)) {
-      post.style.display = "none"
-    }
-  }
-}
 
-window.addEventListener('scroll', removeAffiliate)
+const observer = new MutationObserver((mutations) => {
+  mutations.forEach((mutation) => {
+    if (mutation.type === 'childList') {
+      mutation.addedNodes.forEach((node) => {
+        if (node.nodeType === Node.ELEMENT_NODE) {   
+          const isPost = node.getAttribute('data-testid') === 'cellInnerDiv'       
+          if (isPost && hasAffiliateLink(node)) {
+            node.style.display = 'none';
+          }
+        }
+      });
+    }
+  });
+});
+
+observer.observe(document.body, { childList: true, subtree: true });
+
+function disconnectObserver() {
+  observer.disconnect();
+}
