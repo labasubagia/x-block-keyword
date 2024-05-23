@@ -20,8 +20,8 @@ class Blocker {
     this.start();
   }
 
-  #initEventBroker(eventBlocker) {
-    this.#eventBroker = eventBlocker;
+  #initEventBroker(eventBroker) {
+    this.#eventBroker = eventBroker;
 
     this.#eventBroker?.addEventListener(Blocker.EVENT_CONFIG_CHANGED, async (event) => {
       this.#log('blocker config changed');
