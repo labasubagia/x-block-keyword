@@ -3,7 +3,7 @@ if (typeof browser == 'undefined') {
 }
 
 const defaultConfig = {
-  verbose: true,
+  verbose: false,
   isActive: true,
   isBlockAd: true,
   isRestartAfterConfigChanged: false,

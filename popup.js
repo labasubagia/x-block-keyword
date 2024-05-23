@@ -29,7 +29,7 @@ async function loadBlockedCount(blockedCount = null) {
     const db = await browser?.storage?.sync?.get(DB_KEY_BLOCKED_COUNT);
     blockedCount = db?.[DB_KEY_BLOCKED_COUNT] ?? 0;
   }
-  const formattedBlockedCount = numberFormatter.format(blockedCount);
+  const formattedBlockedCount = blockedCount >= 10_000 ? numberFormatter.format(blockedCount) : blockedCount;
   blockedCountDOM.innerHTML = formattedBlockedCount;
 }
 
@@ -42,9 +42,9 @@ function loadListKeywords(keywords) {
   const containerDOM = document.querySelector('#keywordContainer');
   containerDOM.innerHTML = keywords.reduce((html, keyword, index) => {
     html += `
-      <div class="keyword">
-        <span>${keyword}</span> &nbsp;
-        <button type="button" class="deleteBtn">x</button>
+      <div class="keyword bg-white rounded-lg flex justify-between items-center p-1 px-3 gap-2">
+        <span>${keyword}</span> 
+        <button type="button" class="deleteBtn rounded text-red-500 text-lg font-bold">ⓧ</button>
       </div>
     `;
     return html;
@@ -52,6 +52,7 @@ function loadListKeywords(keywords) {
   containerDOM.querySelectorAll('.deleteBtn').forEach((btn, index) => {
     btn.addEventListener('click', async () => removeKeyword(index));
   });
+  containerDOM.scroll({ top: containerDOM.scrollHeight, behavior: 'smooth' });
 }
 
 async function removeKeyword(index) {
@@ -85,7 +86,9 @@ checkboxBlockAdDOM.addEventListener('change', async (event) => {
 addKeywordFormDOM.addEventListener('submit', async (event) => {
   event.preventDefault();
   const formData = new FormData(event.target);
-  await addKeyword(formData.get('keyword'));
+  const keyword = formData.get('keyword').trim();
+  if (!keyword) return;
+  await addKeyword(keyword);
   addKeywordFormDOM.reset();
 });
 
