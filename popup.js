@@ -7,14 +7,14 @@ const DB_KEY_BLOCKED_COUNT = 'blockedCount';
 const numberFormatter = Intl.NumberFormat('en', { notation: 'compact' });
 
 async function getConfig() {
-  const db = await browser.storage.sync.get(DB_KEY_CONFIG);
+  const db = await browser?.storage?.sync?.get(DB_KEY_CONFIG);
   const config = db?.[DB_KEY_CONFIG];
   return config;
 }
 
 async function setConfig(config) {
   const prevConfig = await getConfig();
-  return browser.storage.sync.set({ [DB_KEY_CONFIG]: { ...prevConfig, ...config } });
+  return browser?.storage?.sync?.set({ [DB_KEY_CONFIG]: { ...prevConfig, ...config } });
 }
 
 const blockedCountDOM = document.querySelector('#blockedCount');
@@ -26,14 +26,15 @@ const addKeywordFormDOM = document.querySelector('#newKeywordForm');
 
 async function loadBlockedCount(blockedCount = null) {
   if (blockedCount == null) {
-    const db = await browser.storage.sync.get(DB_KEY_BLOCKED_COUNT);
+    const db = await browser?.storage?.sync?.get(DB_KEY_BLOCKED_COUNT);
     blockedCount = db?.[DB_KEY_BLOCKED_COUNT] ?? 0;
   }
   const formattedBlockedCount = numberFormatter.format(blockedCount);
   blockedCountDOM.innerHTML = formattedBlockedCount;
 }
 
-function initCheckboxActiveDOM(isActive) {
+function setCheckboxActiveDOM(isActive) {
+  checkboxActiveDOM.checked = isActive;
   document.querySelector('#childConfig').style.display = isActive ? 'block' : 'none';
 }
 
@@ -70,7 +71,7 @@ async function addKeyword(keyword) {
 checkboxActiveDOM.addEventListener('change', async (event) => {
   const isActive = event?.target?.checked;
   await setConfig({ isActive });
-  initCheckboxActiveDOM(isActive);
+  setCheckboxActiveDOM(isActive);
 });
 
 checkboxVerboseDOM.addEventListener('change', async (event) => {
@@ -88,9 +89,9 @@ addKeywordFormDOM.addEventListener('submit', async (event) => {
   addKeywordFormDOM.reset();
 });
 
-browser.storage.onChanged.addListener((changes, area) => {
+browser?.storage?.onChanged?.addListener((changes, area) => {
   if (area != 'sync') return;
-  const blockedCount = changes[DB_KEY_BLOCKED_COUNT]?.newValue;
+  const blockedCount = changes?.[DB_KEY_BLOCKED_COUNT]?.newValue;
   if (blockedCount == null) return;
   loadBlockedCount(blockedCount);
 });
@@ -99,11 +100,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   loadBlockedCount();
 
   const { isActive, isBlockAd, verbose, blockedKeywords } = await getConfig();
-  checkboxActiveDOM.checked = isActive;
-  initCheckboxActiveDOM(isActive);
-
+  setCheckboxActiveDOM(isActive);
+  loadListKeywords(blockedKeywords);
   checkboxVerboseDOM.checked = verbose;
   checkboxBlockAdDOM.checked = isBlockAd;
-
-  loadListKeywords(blockedKeywords);
 });

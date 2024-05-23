@@ -31,14 +31,14 @@ const requiredPermissions = {
 };
 
 // On install
-browser.runtime.onInstalled.addListener(async () => {
+browser?.runtime?.onInstalled?.addListener(async () => {
   // Request host permissions
-  const hasPermissions = await browser.permissions.contains(requiredPermissions);
-  if (!hasPermissions) browser.permissions.request(requiredPermissions);
+  const hasPermissions = await browser?.permissions?.contains(requiredPermissions);
+  if (!hasPermissions) browser?.permissions?.request(requiredPermissions);
 
   // Set default config upon install
-  const storageResult = await browser.storage.sync.get(DB_KEY_CONFIG);
-  if (!storageResult.hasOwnProperty(DB_KEY_CONFIG)) {
-    browser.storage.sync.set({ [DB_KEY_CONFIG]: defaultConfig });
+  const storageResult = await browser?.storage?.sync?.get(DB_KEY_CONFIG);
+  if (!storageResult?.hasOwnProperty(DB_KEY_CONFIG)) {
+    browser?.storage?.sync?.set({ [DB_KEY_CONFIG]: defaultConfig });
   }
 });

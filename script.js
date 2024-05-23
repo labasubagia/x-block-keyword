@@ -60,7 +60,7 @@ class Blocker {
   }
 
   #canRun() {
-    return this.#config?.isActive && this.#config?.blockedKeywords.length > 0;
+    return this.#config?.isActive && this.#config?.blockedKeywords?.length > 0;
   }
 
   restart() {
@@ -75,16 +75,13 @@ class Blocker {
     this.#domObserver = new MutationObserver((mutations) => {
       this.#mutationObserverCallback(mutations);
     });
-    this.#domObserver.observe(document.body, {
-      childList: true,
-      subtree: true,
-    });
+    this.#domObserver?.observe(document.body, { childList: true, subtree: true });
     this.#log('blocker observer started');
   }
 
   stop() {
     if (!this.#isRunning()) return;
-    this.#domObserver.disconnect();
+    this.#domObserver?.disconnect();
     this.#domObserver = null;
     this.#log('blocker observer stopped');
   }
@@ -142,9 +139,9 @@ class Blocker {
   }
 
   async #incBlockCount() {
-    const db = await browser.storage.sync.get(DB_KEY_BLOCKED_COUNT);
+    const db = await browser?.storage?.sync?.get(DB_KEY_BLOCKED_COUNT);
     const count = (db[DB_KEY_BLOCKED_COUNT] ?? 0) + 1;
-    await browser.storage.sync.set({ [DB_KEY_BLOCKED_COUNT]: count });
+    await browser?.storage?.sync?.set({ [DB_KEY_BLOCKED_COUNT]: count });
     return count;
   }
 
@@ -155,19 +152,19 @@ class Blocker {
 }
 
 async function exec() {
-  const db = await browser.storage.sync.get(DB_KEY_CONFIG);
+  const db = await browser?.storage?.sync?.get(DB_KEY_CONFIG);
   const config = db?.[DB_KEY_CONFIG];
   if (!config?.isActive) return;
 
   const eventBroker = new EventTarget();
   const blocker = new Blocker({ config, eventBroker });
 
-  browser.storage.onChanged.addListener((changes, area) => {
+  browser?.storage?.onChanged?.addListener((changes, area) => {
     if (area != 'sync') return;
 
     // check config changes
-    if (!changes[DB_KEY_CONFIG]) return;
-    const config = changes[DB_KEY_CONFIG]?.newValue;
+    if (!changes?.[DB_KEY_CONFIG]) return;
+    const config = changes?.[DB_KEY_CONFIG]?.newValue;
     blocker.setConfig(config);
   });
 }
