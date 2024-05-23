@@ -37,12 +37,7 @@ class Blocker {
     });
 
     this.#eventBroker?.addEventListener(Blocker.EVENT_POST_BLOCKED, async (event) => {
-      const blockedCount = await this.#incBlockCount();
-      const formattedBlockedCount = Intl.NumberFormat('en', { notation: 'compact' }).format(blockedCount);
-      this.#log('block count:', formattedBlockedCount);
-
-      // TODO: fix browser action, related to manifest.json
-      // browser.action.setBadgeText({ details: { text: formattedBlockedCount } });
+      await this.#incBlockCount();
     });
   }
 
@@ -161,9 +156,9 @@ class Blocker {
 
 async function exec() {
   const db = await browser.storage.sync.get(DB_KEY_CONFIG);
-  if (db == null || !db[DB_KEY_CONFIG].isActive) return;
+  const config = db?.[DB_KEY_CONFIG];
+  if (!config?.isActive) return;
 
-  const config = db[DB_KEY_CONFIG];
   const eventBroker = new EventTarget();
   const blocker = new Blocker({ config, eventBroker });
 
@@ -172,12 +167,9 @@ async function exec() {
 
     // check config changes
     if (!changes[DB_KEY_CONFIG]) return;
-    blocker.setConfig(changes[DB_KEY_CONFIG]?.newValue);
+    const config = changes[DB_KEY_CONFIG]?.newValue;
+    blocker.setConfig(config);
   });
-
-  // await browser.storage.sync.set({
-  //   [DB_KEY_CONFIG]: { ...config, verbose: !config.verbose },
-  // });
 }
 
 exec();

@@ -6,6 +6,43 @@
     <title>Document</title>
   </head>
   <body>
-    <div>This is X.com block keywords</div>
+    <div>
+      <h2>Twitter Block Keywords</h2>
+
+      <div>
+        <h4>Total Post Blocked</h4>
+        <h1 id="blockedCount"></h1>
+      </div>
+
+      <div class="form-parent">
+        <input id="isActive" type="checkbox" />
+        <label for="isActive">Active</label>
+      </div>
+
+      <div id="childConfig">
+        <div class="form-group">
+          <input id="isBlockAd" type="checkbox" />
+          <label for="isBlockAd">Block Ads</label>
+        </div>
+
+        <div class="form-group">
+          <input id="verbose" type="checkbox" />
+          <label for="verbose">Verbose</label>
+        </div>
+
+        <br /><br />
+        <div class="form-group">
+          <p>Blocked Keyword List</p>
+          <div id="keywordContainer"></div>
+          <br />
+          <form id="newKeywordForm">
+            <input type="text" name="keyword" placeholder="add new blocked keyword" />
+            <button type="submit">Add</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script src="./popup.js"></script>
   </body>
 </html>
