@@ -1,30 +1,11 @@
-const defaultConfig = {
-  verbose: true,
-  isBlockAd: true,
-  isRestartAfterConfigChanged: false,
-  blockedKeywords: [
-    // shopee
-    'shope',
-    'shoope',
+if (typeof browser == 'undefined') {
+  globalThis.browser = chrome;
+}
 
-    // tokopedia
-    'tokopedia',
-
-    // other keywords
-    'vcs',
-  ],
-
-  // dependent to data above
-  _regExp: undefined, // default
-};
-
-// TODO: Change all localStorage chrome extensions storage
-let config = localStorage.getItem('BLOCKER_CONFIG');
-config = config ? JSON.parse(config) : defaultConfig;
+const DB_KEY_CONFIG = 'config';
+const DB_KEY_BLOCKED_COUNT = 'blockedCount';
 
 class Blocker {
-  static DB_BLOCKED_COUNT = 'BLOCKER_BLOCKED_COUNT';
-
   static EVENT_POST_BLOCKED = 'BLOCKER_POST_BLOCKED';
   static EVENT_CONFIG_CHANGED = 'BLOCKER_CONFIG_CHANGED';
 
@@ -42,35 +23,27 @@ class Blocker {
   #initEventBroker(eventBlocker) {
     this.#eventBroker = eventBlocker;
 
-    this.#eventBroker?.addEventListener(
-      Blocker.EVENT_CONFIG_CHANGED,
-      async (event) => {
-        this.#log('blocker config changed');
+    this.#eventBroker?.addEventListener(Blocker.EVENT_CONFIG_CHANGED, async (event) => {
+      this.#log('blocker config changed');
 
-        // TODO: will think this
-        localStorage.setItem(
-          'BLOCKER_CONFIG',
-          JSON.stringify(event?.detail?.config),
-        );
+      // activate/deactivate blocker
+      if (this.#canRun()) {
+        this.start();
+      } else {
+        this.stop();
+      }
 
-        if (!this.#config?.isRestartAfterConfigChanged) return;
-        this.restart();
-      },
-    );
+      if (this.#config?.isRestartAfterConfigChanged) this.restart();
+    });
 
-    this.#eventBroker?.addEventListener(
-      Blocker.EVENT_POST_BLOCKED,
-      async (event) => {
-        // TODO: will think this
-        const blockedCount =
-          Number(localStorage.getItem(Blocker.DB_BLOCKED_COUNT) ?? 0) + 1;
-        localStorage.setItem(Blocker.DB_BLOCKED_COUNT, String(blockedCount));
+    this.#eventBroker?.addEventListener(Blocker.EVENT_POST_BLOCKED, async (event) => {
+      const blockedCount = await this.#incBlockCount();
+      const formattedBlockedCount = Intl.NumberFormat('en', { notation: 'compact' }).format(blockedCount);
+      this.#log('block count:', formattedBlockedCount);
 
-        // TODO: fix browser action, related to manifest.json
-        // const formatted = Intl.NumberFormat('en', { notation: 'compact' }).format(blockedCount)
-        // chrome.browserAction.setBadgeText({ details: { text: formatted }});
-      },
-    );
+      // TODO: fix browser action, related to manifest.json
+      // browser.action.setBadgeText({ details: { text: formattedBlockedCount } });
+    });
   }
 
   getConfig() {
@@ -88,10 +61,11 @@ class Blocker {
 
   #iniConfig(config) {
     this.#config = { ...this.#config, ...config };
-    this.#config._regExp = new RegExp(
-      (this.#config?.blockedKeywords ?? []).join('|'),
-      'i',
-    );
+    this.#config._regExp = new RegExp((this.#config?.blockedKeywords ?? []).join('|'), 'i');
+  }
+
+  #canRun() {
+    return this.#config?.isActive && this.#config?.blockedKeywords.length > 0;
   }
 
   restart() {
@@ -103,9 +77,9 @@ class Blocker {
 
   start() {
     if (this.#isRunning()) return;
-    this.#domObserver = new MutationObserver((mutations) =>
-      this.#mutationObserverCallback(mutations),
-    );
+    this.#domObserver = new MutationObserver((mutations) => {
+      this.#mutationObserverCallback(mutations);
+    });
     this.#domObserver.observe(document.body, {
       childList: true,
       subtree: true,
@@ -125,7 +99,7 @@ class Blocker {
   }
 
   #mutationObserverCallback(mutations) {
-    if (this.#config.blockedKeywords.length === 0) return;
+    if (this.#config?.blockedKeywords?.length === 0) return;
 
     for (let mutation of mutations) {
       if (mutation.type !== 'childList') continue;
@@ -137,9 +111,7 @@ class Blocker {
         // for now, set display to none
         // last time, removing node break the website
         node.style.display = 'none';
-        this.#eventBroker?.dispatchEvent(
-          new CustomEvent(Blocker.EVENT_POST_BLOCKED),
-        );
+        this.#eventBroker?.dispatchEvent(new CustomEvent(Blocker.EVENT_POST_BLOCKED));
       }
     }
   }
@@ -174,17 +146,38 @@ class Blocker {
     return false;
   }
 
+  async #incBlockCount() {
+    const db = await browser.storage.sync.get(DB_KEY_BLOCKED_COUNT);
+    const count = (db[DB_KEY_BLOCKED_COUNT] ?? 0) + 1;
+    await browser.storage.sync.set({ [DB_KEY_BLOCKED_COUNT]: count });
+    return count;
+  }
+
   #log(...data) {
     if (!this.#config?.verbose) return;
     console.log(...data);
   }
 }
 
-const eventBroker = new EventTarget();
-// eventBroker.addEventListener(Blocker.EVENT_CONFIG_CHANGED, (event) => {
-//   console.log('example another listener', event?.detail?.config);
-// })
+async function exec() {
+  const db = await browser.storage.sync.get(DB_KEY_CONFIG);
+  if (db == null || !db[DB_KEY_CONFIG].isActive) return;
 
-const blocker = new Blocker({ config, eventBroker });
+  const config = db[DB_KEY_CONFIG];
+  const eventBroker = new EventTarget();
+  const blocker = new Blocker({ config, eventBroker });
 
-// eventBroker.dispatchEvent(new CustomEvent(Blocker.EVENT_CONFIG_CHANGED, { detail: { config: blocker.getConfig() }}));
+  browser.storage.onChanged.addListener((changes, area) => {
+    if (area != 'sync') return;
+
+    // check config changes
+    if (!changes[DB_KEY_CONFIG]) return;
+    blocker.setConfig(changes[DB_KEY_CONFIG]?.newValue);
+  });
+
+  // await browser.storage.sync.set({
+  //   [DB_KEY_CONFIG]: { ...config, verbose: !config.verbose },
+  // });
+}
+
+exec();
