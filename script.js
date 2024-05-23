@@ -91,7 +91,7 @@ class Blocker {
   }
 
   #mutationObserverCallback(mutations) {
-    if (this.#config?.blockedKeywords?.length === 0) return;
+    if (!this.#canRun()) return;
 
     for (let mutation of mutations) {
       if (mutation.type !== 'childList') continue;
@@ -140,7 +140,7 @@ class Blocker {
 
   async #incBlockCount() {
     const db = await browser?.storage?.sync?.get(DB_KEY_BLOCKED_COUNT);
-    const count = (db[DB_KEY_BLOCKED_COUNT] ?? 0) + 1;
+    const count = (db?.[DB_KEY_BLOCKED_COUNT] ?? 0) + 1;
     await browser?.storage?.sync?.set({ [DB_KEY_BLOCKED_COUNT]: count });
     return count;
   }
@@ -162,9 +162,8 @@ async function exec() {
   browser?.storage?.onChanged?.addListener((changes, area) => {
     if (area != 'sync') return;
 
-    // check config changes
-    if (!changes?.[DB_KEY_CONFIG]) return;
     const config = changes?.[DB_KEY_CONFIG]?.newValue;
+    if (!config) return;
     blocker.setConfig(config);
   });
 }

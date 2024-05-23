@@ -56,14 +56,14 @@ function loadListKeywords(keywords) {
 
 async function removeKeyword(index) {
   const { blockedKeywords } = await getConfig();
-  blockedKeywords.splice(index, 1);
+  blockedKeywords?.splice(index, 1);
   await setConfig({ blockedKeywords });
   loadListKeywords(blockedKeywords);
 }
 
 async function addKeyword(keyword) {
   const { blockedKeywords } = await getConfig();
-  blockedKeywords.push(keyword);
+  blockedKeywords?.push(keyword);
   await setConfig({ blockedKeywords });
   loadListKeywords(blockedKeywords);
 }
