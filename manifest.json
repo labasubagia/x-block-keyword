@@ -1,19 +1,28 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
   "name": "X.com Block Affiliate",
   "version": "1.0",
   "description": "Block affiliate when visiting x.com",
-  "permissions": ["tabs", "http://*/*", "https://*/*","activeTab"],
+  "host_permissions": ["https://x.com/*"],
+  "permissions": ["storage", "tabs"],
+  "background": {
+    "service_worker": "background.js"
+  },
   "content_scripts": [
     {
-      "matches": ["*://x.com/*"],
+      "matches": ["https://x.com/*"],
       "js": ["script.js"]
     }
   ],
-  "browser_action": {
-    "default_icon": "icons/icon16.png",
+  "action": {
     "default_popup": "popup.html",
-    "default_title": "X.com Block Affiliate"
+    "default_title": "X.com Block Affiliate",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
   },
   "icons": {
     "16": "icons/icon16.png",
