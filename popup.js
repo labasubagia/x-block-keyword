@@ -40,15 +40,23 @@ function setCheckboxActiveDOM(isActive) {
 
 function loadListKeywords(keywords) {
   const containerDOM = document.querySelector('#keywordContainer');
-  containerDOM.innerHTML = keywords.reduce((html, keyword, index) => {
+  const emptyHtml = `
+    <div class="h-full w-full flex justify-center items-center text-lg text-gray-400">
+      No blocked keyword
+    </div>
+  `;
+  containerDOM.innerHTML = emptyHtml;
+  const itemsHtml = keywords.reduce((html, keyword, index) => {
     html += `
       <div class="keyword bg-white rounded-lg flex justify-between items-center p-1 px-3 gap-2">
         <span>${keyword}</span> 
-        <button type="button" class="deleteBtn rounded text-red-500 text-lg font-bold">ⓧ</button>
+        <button type="button" class="deleteBtn rounded text-red-500 text-lg font-bold">✕</button>
       </div>
     `;
     return html;
   }, '');
+  if (!itemsHtml) return;
+  containerDOM.innerHTML = itemsHtml;
   containerDOM.querySelectorAll('.deleteBtn').forEach((btn, index) => {
     btn.addEventListener('click', async () => removeKeyword(index));
   });
