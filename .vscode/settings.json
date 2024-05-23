@@ -1,0 +1,10 @@
+{
+  "cSpell.words": [
+    "shoope",
+    "shopee",
+    "testid",
+    "tokopedia"
+  ],
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true
+}
