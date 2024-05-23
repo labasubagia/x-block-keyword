@@ -27,7 +27,7 @@ class Blocker {
       this.#log('blocker config changed');
 
       // activate/deactivate blocker
-      if (this.#canRun()) {
+      if (this.#config?.isActive) {
         this.start();
       } else {
         this.stop();
@@ -37,7 +37,7 @@ class Blocker {
     });
 
     this.#eventBroker?.addEventListener(Blocker.EVENT_POST_BLOCKED, async (event) => {
-      await this.#incBlockCount();
+      this.#incBlockCount();
     });
   }
 
@@ -48,19 +48,13 @@ class Blocker {
   setConfig(config) {
     this.#iniConfig(config);
     this.#eventBroker?.dispatchEvent(
-      new CustomEvent(Blocker.EVENT_CONFIG_CHANGED, {
-        detail: { config: this.#config },
-      }),
+      new CustomEvent(Blocker.EVENT_CONFIG_CHANGED, { detail: { config: this.#config } }),
     );
   }
 
   #iniConfig(config) {
     this.#config = { ...this.#config, ...config };
     this.#config._regExp = new RegExp((this.#config?.blockedKeywords ?? []).join('|'), 'i');
-  }
-
-  #canRun() {
-    return this.#config?.isActive && this.#config?.blockedKeywords?.length > 0;
   }
 
   restart() {
@@ -91,7 +85,7 @@ class Blocker {
   }
 
   #mutationObserverCallback(mutations) {
-    if (!this.#canRun()) return;
+    if (!this.#config?.isActive) return;
 
     for (let mutation of mutations) {
       if (mutation.type !== 'childList') continue;
@@ -124,7 +118,7 @@ class Blocker {
     }
 
     // blocked keywords
-    if (this.#config?._regExp.test(textContent)) {
+    if (this.#config?.blockedKeywords?.length > 0 && this.#config?._regExp.test(textContent)) {
       this.#log('blocked keyword:', textContent);
       return true;
     }
