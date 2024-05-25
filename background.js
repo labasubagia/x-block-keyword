@@ -20,7 +20,7 @@ const defaultConfig = {
   ],
 
   // dependent to data above
-  _regExp: undefined, // default
+  _rgxBlocked: undefined, // default
 };
 
 const DB_KEY_CONFIG = 'config';

@@ -2,6 +2,13 @@ if (typeof browser == 'undefined') {
   globalThis.browser = chrome;
 }
 
+const AD_WORDS = [
+  'ads?', // en
+  'iklan', // id
+  // add more if you see in your language
+];
+const rgxAdd = new RegExp(`^(${AD_WORDS.join('|')})$`, 'i');
+
 const DB_KEY_CONFIG = 'config';
 const DB_KEY_BLOCKED_COUNT = 'blockedCount';
 
@@ -54,7 +61,7 @@ class Blocker {
 
   #iniConfig(config) {
     this.#config = { ...this.#config, ...config };
-    this.#config._regExp = new RegExp((this.#config?.blockedKeywords ?? []).join('|'), 'i');
+    this.#config._rgxBlocked = new RegExp((this.#config?.blockedKeywords ?? []).join('|'), 'i');
   }
 
   restart() {
@@ -112,13 +119,13 @@ class Blocker {
 
   #hasBlockedElement({ textContent, children }) {
     // ads
-    if (this.#config?.isBlockAd && textContent === 'Ad') {
-      this.#log('blocked ad');
+    if (this.#config?.isBlockAd && rgxAdd.test(textContent)) {
+      this.#log('blocked ad:', textContent);
       return true;
     }
 
     // blocked keywords
-    if (this.#config?.blockedKeywords?.length > 0 && this.#config?._regExp.test(textContent)) {
+    if (this.#config?.blockedKeywords?.length > 0 && this.#config?._rgxBlocked.test(textContent)) {
       this.#log('blocked keyword:', textContent);
       return true;
     }
