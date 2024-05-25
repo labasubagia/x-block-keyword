@@ -18,6 +18,17 @@ X.com actually already have a mute word feature, but it's still limited and cann
 
 This feature is limited to words, phrases, @username, and hashtags. In other words, this extension is the brutal version.
 
+## Manual Installation
+
+1. Download [zip file](https://github.com/labasubagia/x-block-keyword/archive/refs/heads/main.zip).
+1. Extract zip file.
+1. Go to `chrome://extensions` in your browser.
+1. Check Developer Mode
+1. Load Unpacked
+1. Choose to path to the extracted zip file
+
+Also can seen [here](https://ui.vision/howto/install-chrome-extension-from-file)
+
 ## Example Use Case
 
 Block affiliate links that contain word `shope`.
@@ -36,7 +47,15 @@ Shope is one of Marketplace similar to Amazon/Ebay.
 
 ![After Block](./docs/img/after_block.gif)
 
+## Disclaimer
+
+This extensions does not save any personal information. Feel free to check the source code.
+
 ## Features
 
 - Block Keywords
 - Block Ads (Limited)
+
+## License
+
+[MIT](./LICENSE)
