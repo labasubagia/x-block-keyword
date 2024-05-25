@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "X.com Block Affiliate",
+  "name": "X.com Block Keywords",
   "version": "1.0",
-  "description": "Block affiliate when visiting x.com",
+  "description": "Block keywords when visiting x.com",
   "host_permissions": ["https://x.com/*"],
   "permissions": ["storage", "tabs"],
   "background": {
@@ -16,7 +16,7 @@
   ],
   "action": {
     "default_popup": "popup.html",
-    "default_title": "X.com Block Affiliate",
+    "default_title": "X.com Block Keywords",
     "default_icon": {
       "16": "icons/icon16.png",
       "32": "icons/icon32.png",
