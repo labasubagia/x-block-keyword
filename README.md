@@ -12,7 +12,7 @@ This extension was created to protect us from that tweet/post.
 
 ### Mute Word on X
 
-![Twitter post](https://i.ibb.co/XVCSn3T/muted-word.png)
+![Twitter post](https://i.ibb.co/1n5wTKV/muted-words.png)
 
 X.com actually already have a mute word feature, but it's still limited and cannot detect links (in case you want to block tweets that contain affiliate links).
 
@@ -37,15 +37,15 @@ Shope is one of Marketplace similar to Amazon/Ebay.
 
 **Set keyword**
 
-![Set Keyword](https://i.ibb.co/4Y6N3X4/set-keyword.gif)
+![Set Keyword](https://i.ibb.co/2KVVyXj/set-keyword-optimize.gif)
 
 **This is before Using The Extension**
 
-![Before Block](https://i.ibb.co/9wvprLK/before-block.gif)
+![Before Block](https://i.ibb.co/L8db3ds/blocker-before-optimize.gif)
 
 **This is after Using the Extension**
 
-![After Block](https://i.ibb.co/Jchnd13/after-block.gif)
+![After Block](https://i.ibb.co/vH9TdkR/blocker-after-optimize.gif)
 
 ## Disclaimer
 
